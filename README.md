@@ -18,7 +18,7 @@ For example, "P3Y6M4DT12H30M5S" represents a duration of "three years, six month
 From https://en.wikipedia.org/wiki/ISO_8601#Durations.
 
 ### Usage
-```
+```swift
 let dateComponents = ISO8601DateFormatter.durationComponents(from: "P1Y2M3DT6H15M30S")
 //  Results in an optional date component:
 //  - year: 1, month: 2. day: 3, hour: 6, minute: 15, second: 30, isLeapMonth: false 
