@@ -1,3 +1,24 @@
+//  MIT License
+//
+//  Copyright (c) 2019 Andy Gandara
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
 //
 //  ISO8601DurationParser.swift
 //  
@@ -8,22 +29,24 @@
 
 import Foundation
 
-extension ISO8601DateFormatter {
+extension Calendar {
     
     /// Takes an ISO 8601 duration string and adds duration to the date parameter. Returns an optional date result. For more information on
     /// ISO 8601 duration formatting, see [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations).
     /// - Parameters:
     ///   - durationString: ISO 8601 duration string in the format of `PnYnMnDTnHnMnS` or `PnW`
     ///   - date: Date to which the duration will be added
-    static func date(byAdding durationString: String, to date: Date) -> Date? {
-        guard let components = durationComponents(from: durationString) else { return nil }
+    /// - returns: Date?
+    func date(byAddingISO8601Duration durationString: String, to date: Date) -> Date? {
+        guard let components = dateComponents(fromISO8601Duration: durationString) else { return nil }
         return Calendar.current.date(byAdding: components, to: date)
     }
     
     /// Takes an ISO 8601 duration string and returns the corresponding date components. For more information on
     /// ISO 8601 duration formatting, see [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations).
     /// - Parameter durationString: ISO 8601 duration string in the format of `PnYnMnDTnHnMnS` or `PnW`
-    static func durationComponents(from durationString: String) -> DateComponents? {
+    /// - returns: DateComponents?
+    func dateComponents(fromISO8601Duration durationString: String) -> DateComponents? {
         /// Validate `durationString` format
         let validationRegex = "^P(?:(\\d*)Y)?(?:(\\d*)M)?(?:(\\d*)W)?(?:(\\d*)D)?(?:T(?:(\\d*)H)?(?:(\\d*)M)?(?:(\\d*)S)?)?$"
         guard durationString.range(of: validationRegex, options: .regularExpression) != nil else { return nil }
@@ -34,8 +57,7 @@ extension ISO8601DateFormatter {
         if durationString.contains("W") {
             let weekValues = componentsForRegex(string: durationString, regexStrings: ["[0-9]{1,}W"])
             guard let weekValue = weekValues["W"] else { return nil }
-            let weekValueDouble = Double(weekValue)
-            dateComponents.day = Int(weekValueDouble * 7.0)
+            dateComponents.day = Int(weekValue) * 7
             return dateComponents
         }
         
@@ -81,7 +103,7 @@ extension ISO8601DateFormatter {
         return dateComponents
     }
     
-    static private func componentsForRegex(string: String, regexStrings: [String]) -> Dictionary<String, Int> {
+    private func componentsForRegex(string: String, regexStrings: [String]) -> Dictionary<String, Int> {
         guard string.count > 0 else { return [:] }
         
         var dictionary = [String: Int]()
